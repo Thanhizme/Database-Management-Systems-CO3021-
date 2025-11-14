@@ -11,6 +11,10 @@ This database system stores and manages:
 - **Medical Images** (48,345 .ima files with file paths)
 - **Radiologist Clinical Notes** (575 clinical assessments)
 
+### Dataset Sources
+- **MRI Images Dataset**: https://data.mendeley.com/datasets/s6bgczr8s2/2
+- **Radiologists Clinical Notes Dataset**: https://data.mendeley.com/datasets/k57fr854j2/2
+
 ## 🗂️ Database Schema
 
 ### Entity Relationship
