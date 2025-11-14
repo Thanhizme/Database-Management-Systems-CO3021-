@@ -1,0 +1,264 @@
+================================================================================
+ENTITY-RELATIONSHIP MODEL - LumbarMRI Database
+================================================================================
+
+📋 ENTITIES AND ATTRIBUTES
+================================================================================
+
+1. PATIENT
+   ├── PatientID (PK) - INT, NOT NULL
+   │
+   └── Attributes:
+       • PatientID: Unique identifier for each patient
+
+2. STUDY
+   ├── StudyID (PK) - INT, IDENTITY, NOT NULL
+   ├── PatientID (FK) - INT, NOT NULL → PATIENT.PatientID
+   ├── StudyName - NVARCHAR(255), NULL
+   ├── StudyDate - DATETIME, NULL
+   │
+   └── Attributes:
+       • StudyID: Auto-generated unique identifier
+       • PatientID: Foreign key linking to Patient
+       • StudyName: Name/description of the MRI study (e.g., "L-SPINE_LSS_20160309_091629_240000")
+       • StudyDate: Date and time when the study was conducted
+
+3. SERIES
+   ├── SeriesID (PK) - INT, IDENTITY, NOT NULL
+   ├── StudyID (FK) - INT, NOT NULL → STUDY.StudyID
+   ├── SeriesName - NVARCHAR(255), NULL
+   ├── Orientation - NVARCHAR(50), NULL
+   ├── FileCount - INT, NULL
+   │
+   └── Attributes:
+       • SeriesID: Auto-generated unique identifier
+       • StudyID: Foreign key linking to Study
+       • SeriesName: Name of the image series (e.g., "T2_TSE_SAG_384_0002")
+       • Orientation: Imaging orientation
+           - Values: 'Sagittal', 'Transverse', 'Box', 'Spine', 'Unknown'
+       • FileCount: Number of image files in this series
+
+4. IMAGE
+   ├── ImageID (PK) - INT, IDENTITY, NOT NULL
+   ├── SeriesID (FK) - INT, NOT NULL → SERIES.SeriesID
+   ├── FileName - NVARCHAR(255), NULL
+   ├── FilePath - NVARCHAR(1024), NULL
+   │
+   └── Attributes:
+       • ImageID: Auto-generated unique identifier
+       • SeriesID: Foreign key linking to Series
+       • FileName: Name of the image file (e.g., "T2_TSE_SAG__0001_001.ima")
+       • FilePath: Full path to the image file on disk
+
+5. RADIOLOGISTS_DATA
+   ├── RecordID (PK) - INT, IDENTITY, NOT NULL
+   ├── PatientID (FK) - INT, NOT NULL → PATIENT.PatientID
+   ├── Note - NVARCHAR(MAX), NULL
+   │
+   └── Attributes:
+       • RecordID: Auto-generated unique identifier
+       • PatientID: Foreign key linking to Patient
+       • Note: Clinical notes/diagnosis from radiologist
+
+
+================================================================================
+RELATIONSHIPS (for EERD)
+================================================================================
+
+1. PATIENT ──< STUDY
+   • Relationship: "has" or "undergoes"
+   • Cardinality: 1:N (One-to-Many)
+   • A Patient can have multiple Studies
+   • A Study belongs to exactly one Patient
+   • Participation: Study total, Patient partial (60 patients have no studies)
+
+2. STUDY ──< SERIES
+   • Relationship: "contains"
+   • Cardinality: 1:N (One-to-Many)
+   • A Study can contain multiple Series
+   • A Series belongs to exactly one Study
+   • Participation: Both total
+
+3. SERIES ──< IMAGE
+   • Relationship: "contains"
+   • Cardinality: 1:N (One-to-Many)
+   • A Series can contain multiple Images
+   • An Image belongs to exactly one Series
+   • Participation: Both total
+
+4. PATIENT ──< RADIOLOGISTS_DATA
+   • Relationship: "has" or "documented_by"
+   • Cardinality: 1:1 (One-to-One)
+   • A Patient has one radiologist note
+   • A note belongs to exactly one Patient
+   • Participation: Both total (all patients have a record, 60 with NULL notes)
+
+
+================================================================================
+CONSTRAINTS
+================================================================================
+
+Primary Keys:
+  • PATIENT.PatientID
+  • STUDY.StudyID
+  • SERIES.SeriesID
+  • IMAGE.ImageID
+  • RADIOLOGISTS_DATA.RecordID
+
+Foreign Keys:
+  • STUDY.PatientID → PATIENT.PatientID
+  • SERIES.StudyID → STUDY.StudyID
+  • IMAGE.SeriesID → SERIES.SeriesID
+  • RADIOLOGISTS_DATA.PatientID → PATIENT.PatientID
+
+Domain Constraints:
+  • Orientation ∈ {'Sagittal', 'Transverse', 'Box', 'Spine', 'Unknown'}
+  • PatientID > 0
+  • FileCount ≥ 0
+  • StudyDate: Valid datetime format
+
+
+================================================================================
+EERD DIAGRAM STRUCTURE (Text Representation)
+================================================================================
+
+┌─────────────────┐
+│    PATIENT      │
+├─────────────────┤
+│ PK: PatientID   │
+└────────┬────────┘
+         │ 1
+         │
+         │ has/undergoes
+         │
+         │ N
+    ┌────┴──────────────┐
+    │                   │
+┌───▼──────────┐   ┌───▼─────────────────┐
+│   STUDY      │   │ RADIOLOGISTS_DATA   │
+├──────────────┤   ├─────────────────────┤
+│ PK: StudyID  │   │ PK: RecordID        │
+│ FK: PatientID│   │ FK: PatientID       │
+│ StudyName    │   │ Note                │
+│ StudyDate    │   └─────────────────────┘
+└──────┬───────┘
+       │ 1
+       │
+       │ contains
+       │
+       │ N
+   ┌───▼────────────┐
+   │    SERIES      │
+   ├────────────────┤
+   │ PK: SeriesID   │
+   │ FK: StudyID    │
+   │ SeriesName     │
+   │ Orientation    │
+   │ FileCount      │
+   └────────┬───────┘
+            │ 1
+            │
+            │ contains
+            │
+            │ N
+        ┌───▼────────┐
+        │   IMAGE    │
+        ├────────────┤
+        │ PK: ImageID│
+        │ FK: SeriesID│
+        │ FileName   │
+        │ FilePath   │
+        └────────────┘
+
+
+================================================================================
+MAPPING TO RELATIONAL MODEL
+================================================================================
+
+Step 1: Map Strong Entities
+----------------------------
+PATIENT(PatientID)
+  - No additional attributes (just identifier)
+
+Step 2: Map Weak/Regular Entities with Relationships
+----------------------------------------------------
+STUDY(StudyID, PatientID*, StudyName, StudyDate)
+  - StudyID: Primary Key (auto-increment)
+  - PatientID: Foreign Key references PATIENT
+
+SERIES(SeriesID, StudyID*, SeriesName, Orientation, FileCount)
+  - SeriesID: Primary Key (auto-increment)
+  - StudyID: Foreign Key references STUDY
+
+IMAGE(ImageID, SeriesID*, FileName, FilePath)
+  - ImageID: Primary Key (auto-increment)
+  - SeriesID: Foreign Key references SERIES
+
+RADIOLOGISTS_DATA(RecordID, PatientID*, Note)
+  - RecordID: Primary Key (auto-increment)
+  - PatientID: Foreign Key references PATIENT
+
+Step 3: Map 1:N Relationships
+-----------------------------
+All 1:N relationships are already mapped by including the FK in the "N" side:
+  • PATIENT(1) → STUDY(N): FK PatientID in STUDY
+  • STUDY(1) → SERIES(N): FK StudyID in SERIES
+  • SERIES(1) → IMAGE(N): FK SeriesID in IMAGE
+  • PATIENT(1) → RADIOLOGISTS_DATA(1): FK PatientID in RADIOLOGISTS_DATA
+
+
+================================================================================
+ADDITIONAL NOTES FOR EERD
+================================================================================
+
+Derived Attributes (can be calculated):
+  • Total number of studies per patient: COUNT(STUDY.StudyID) GROUP BY PatientID
+  • Total images per patient: COUNT(IMAGE.ImageID) via joins
+  • Total series per study: COUNT(SERIES.SeriesID) GROUP BY StudyID
+
+Multi-valued Attributes:
+  • None explicitly, but could consider:
+    - Patient.Studies (derived from relationship)
+    - Series.Images (derived from relationship)
+
+Optional Attributes (can be NULL):
+  • STUDY.StudyName
+  • STUDY.StudyDate
+  • SERIES.SeriesName
+  • SERIES.Orientation
+  • SERIES.FileCount
+  • IMAGE.FileName
+  • IMAGE.FilePath
+  • RADIOLOGISTS_DATA.Note
+
+Composite Attributes:
+  • Could consider FilePath as composite:
+    - Directory path
+    - File name
+  • StudyName contains composite info:
+    - Procedure type (L-SPINE, C-SPINE)
+    - Condition (LSS)
+    - DateTime (YYYYMMDD_HHMMSS)
+    - Code
+
+
+================================================================================
+DATABASE STATISTICS (Current Data)
+================================================================================
+
+PATIENT:          575 records
+STUDY:            558 records (515 patients have studies)
+SERIES:         3,761 records
+IMAGE:         48,345 records
+RADIOLOGISTS_DATA: 575 records (515 with notes, 60 NULL)
+
+Cardinality Examples:
+  • Average studies per patient: 558/515 ≈ 1.08
+  • Average series per study: 3,761/558 ≈ 6.74
+  • Average images per series: 48,345/3,761 ≈ 12.85
+  • Max images for one patient: 783 (Patient 230)
+
+
+================================================================================
+END OF ENTITY-RELATIONSHIP SPECIFICATION
+================================================================================
