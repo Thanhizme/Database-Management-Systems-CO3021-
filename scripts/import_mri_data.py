@@ -87,7 +87,10 @@ def insert_study(patient_id, study_name):
         OUTPUT INSERTED.StudyID
         VALUES (?, ?, ?)
     """, (patient_id, study_name, study_date))
-    study_id = cursor.fetchone()[0]  # retrieve the ID directly
+    result = cursor.fetchone()
+    if result is None:
+        raise Exception(f"Failed to insert study: {study_name}")
+    study_id = result[0]  # retrieve the ID directly
     return study_id
 
 
@@ -112,7 +115,10 @@ def insert_series(study_id, series_name, file_count):
         OUTPUT INSERTED.SeriesID
         VALUES (?, ?, ?, ?)
     """, (study_id, series_name, orientation, file_count))
-    series_id = cursor.fetchone()[0]
+    result = cursor.fetchone()
+    if result is None:
+        raise Exception(f"Failed to insert series: {series_name}")
+    series_id = result[0]
     return series_id
 
 

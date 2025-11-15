@@ -1,4 +1,5 @@
 import pyodbc
+from typing import Any
 
 # =========================
 # SQL SERVER CONNECTION
@@ -20,23 +21,28 @@ print("\n📊 RECORD COUNTS:")
 print("-"*70)
 
 cursor.execute("SELECT COUNT(*) FROM Patients")
-patient_count = cursor.fetchone()[0]
+result = cursor.fetchone()
+patient_count = result[0] if result else 0
 print(f"Patients:         {patient_count:>6} records")
 
 cursor.execute("SELECT COUNT(*) FROM Studies")
-study_count = cursor.fetchone()[0]
+result = cursor.fetchone()
+study_count = result[0] if result else 0
 print(f"Studies:          {study_count:>6} records")
 
 cursor.execute("SELECT COUNT(*) FROM Series")
-series_count = cursor.fetchone()[0]
+result = cursor.fetchone()
+series_count = result[0] if result else 0
 print(f"Series:           {series_count:>6} records")
 
 cursor.execute("SELECT COUNT(*) FROM Images")
-image_count = cursor.fetchone()[0]
+result = cursor.fetchone()
+image_count = result[0] if result else 0
 print(f"Images:           {image_count:>6} records")
 
 cursor.execute("SELECT COUNT(*) FROM RadiologistsData")
-radio_count = cursor.fetchone()[0]
+result = cursor.fetchone()
+radio_count = result[0] if result else 0
 print(f"RadiologistsData: {radio_count:>6} records")
 
 # 2. Check for patients without notes
@@ -49,7 +55,8 @@ cursor.execute("""
     LEFT JOIN RadiologistsData r ON p.PatientID = r.PatientID
     WHERE r.RecordID IS NULL
 """)
-no_notes = cursor.fetchone()[0]
+result = cursor.fetchone()
+no_notes = result[0] if result else 0
 print(f"Patients without notes: {no_notes}")
 
 cursor.execute("""
@@ -58,7 +65,8 @@ cursor.execute("""
     LEFT JOIN Studies s ON p.PatientID = s.PatientID
     WHERE s.StudyID IS NULL
 """)
-no_studies = cursor.fetchone()[0]
+result = cursor.fetchone()
+no_studies = result[0] if result else 0
 print(f"Patients without MRI studies: {no_studies}")
 
 # 3. Orientation distribution
@@ -142,9 +150,10 @@ cursor.execute("""
     FROM RadiologistsData
 """)
 row = cursor.fetchone()
-print(f"Total records: {row.Total}")
-print(f"With notes:    {row.HasNote}")
-print(f"NULL notes:    {row.NullNote}")
+if row:
+    print(f"Total records: {row.Total}")
+    print(f"With notes:    {row.HasNote}")
+    print(f"NULL notes:    {row.NullNote}")
 
 print("\n" + "="*70)
 print("✅ DATA CHECK COMPLETED!")
