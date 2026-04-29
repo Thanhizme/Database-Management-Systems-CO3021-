@@ -2,7 +2,7 @@
 
 A relational database system for managing Lumbar Spine MRI medical imaging data and clinical notes.
 
-## 📋 Project Overview
+## Project Overview
 
 This database system stores and manages:
 - **Patient records** (575 patients)
@@ -15,7 +15,7 @@ This database system stores and manages:
 - **MRI Images Dataset**: https://data.mendeley.com/datasets/s6bgczr8s2/2
 - **Radiologists Clinical Notes Dataset**: https://data.mendeley.com/datasets/k57fr854j2/2
 
-## 🗂️ Database Schema
+## Database Schema
 
 ### Entity Relationship
 ```
@@ -31,7 +31,7 @@ PATIENT (1) ──< (N) STUDY ──< (N) SERIES ──< (N) IMAGE
 4. **Images** - Individual image file references
 5. **RadiologistsData** - Clinical notes and assessments
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - SQL Server 2019+ (Windows Authentication)
@@ -86,7 +86,7 @@ PATIENT (1) ──< (N) STUDY ──< (N) SERIES ──< (N) IMAGE
 - **Unknown**: 758 series (20%)
 - **Box**: 7 series (<1%)
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 LumbarMRI-Database/
@@ -104,7 +104,7 @@ LumbarMRI-Database/
     └── EERD_Mapping_Specification.txt # Schema mapping documentation
 ```
 
-## 🔍 Sample Queries
+## Sample Queries
 
 ### Find all studies for a patient
 ```sql
@@ -130,7 +130,7 @@ JOIN RadiologistsData r ON p.PatientID = r.PatientID
 WHERE p.PatientID = 100;
 ```
 
-## 🎓 Academic Context
+## Academic Context
 
 This project is part of the **Database Management Systems (CO3021)** course assignment for analyzing and optimizing relational databases using real-world medical imaging data.
 
@@ -140,11 +140,11 @@ This project is part of the **Database Management Systems (CO3021)** course assi
 - Query optimization and index design
 - Performance analysis using execution plans
 
-## 📝 License
+## License
 
 This is an academic project. Dataset used for educational purposes only.
 
-## 👥 Contributors
+## Contributors
 
 - Database Design & Implementation
 - Academic Year 2024-2025
