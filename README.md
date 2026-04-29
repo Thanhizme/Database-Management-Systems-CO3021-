@@ -70,7 +70,7 @@ PATIENT (1) ──< (N) STUDY ──< (N) SERIES ──< (N) IMAGE
    python scripts/check_data.py
    ```
 
-## 📊 Data Statistics
+## Data Statistics
 
 | Table | Records | Description |
 |-------|---------|-------------|
